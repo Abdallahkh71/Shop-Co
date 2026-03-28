@@ -276,8 +276,8 @@
           });
       }
 
-      loadComponent("navbar", "/components/navbar.html", initNavbar);
-      loadComponent("footer", "/components/footer.html");
+      loadComponent("navbar", "./components/navbar.html", initNavbar);
+      loadComponent("footer", "./components/footer.html");
       fetch("https://ecommerce.routemisr.com/api/v1/categories")
         .then((r) => r.json())
         .then((res) => {

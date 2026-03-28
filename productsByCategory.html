@@ -620,8 +620,8 @@
           });
       }
 
-      loadComponent("navbar", "/components/navbar.html", initNavbar);
-      loadComponent("footer", "/components/footer.html");
+      loadComponent("navbar", "./components/navbar.html", initNavbar);
+      loadComponent("footer", "./components/footer.html");
 
       // Boot: wishlist → categories → products (in parallel where safe)
       fetchWishlist().then(() => {

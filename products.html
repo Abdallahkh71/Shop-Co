@@ -474,8 +474,8 @@
           });
       }
 
-      loadComponent("navbar", "/components/navbar.html", initNavbar);
-      loadComponent("footer", "/components/footer.html");
+      loadComponent("navbar", "./components/navbar.html", initNavbar);
+      loadComponent("footer", "./components/footer.html");
       fetchWishlist().then(() => fetchProducts());
     </script>
   </body>
