@@ -139,7 +139,7 @@
 
     <!-- Footer placeholder -->
     <div id="footer"></div>
-    <script src="/components/navbar.js"></script>
+    <script src="./components/navbar.js"></script>
 
     <script>
       //config
@@ -198,7 +198,7 @@
 
           if (res.ok) {
             showToast("✓ Product added to cart!", "success");
-            if (typeof updateCartBadge === 'function') updateCartBadge();
+            if (typeof updateCartBadge === "function") updateCartBadge();
           } else {
             showToast(data.message || "Could not add to cart.", "danger");
           }
@@ -230,8 +230,8 @@
               btn.classList.remove("btn-danger");
               btn.classList.add("btn-outline-danger");
               showToast("Removed from wishlist.", "warning");
-              if (typeof updateWishlistBadge === 'function') updateWishlistBadge();
-
+              if (typeof updateWishlistBadge === "function")
+                updateWishlistBadge();
             }
           } else {
             res = await fetch(`${API_BASE}/wishlist`, {
@@ -246,8 +246,8 @@
               btn.classList.remove("btn-outline-danger");
               btn.classList.add("btn-danger");
               showToast("Added to wishlist!", "success");
-              if (typeof updateWishlistBadge === 'function') updateWishlistBadge();
-
+              if (typeof updateWishlistBadge === "function")
+                updateWishlistBadge();
             }
           }
           if (!res.ok)
