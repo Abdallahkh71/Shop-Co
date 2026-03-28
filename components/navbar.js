@@ -70,7 +70,7 @@ function initNavbar() {
     toast.show();
     // Redirect after toast finishes
     setTimeout(() => {
-      window.location.href = `/login.html?redirect=${encodeURIComponent(redirectTo)}`;
+      window.location.href = `/login-signup.html?redirect=${encodeURIComponent(redirectTo)}`;
     }, 2600);
   }
 
@@ -126,7 +126,7 @@ function initNavbar() {
     ["token", "userName", "userEmail"].forEach((k) =>
       localStorage.removeItem(k),
     );
-    window.location.href = "/login.html";
+    window.location.href = "/login-signup.html";
   });
 
   // ── 6. Live badge counts (only when logged in) ─────────────────────────
