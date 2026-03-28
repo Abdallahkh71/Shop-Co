@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Details</title>
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
+    <style>
+      .navbar-brand img {
+        max-width: 150px;
+        width: 100%;
+      }
+
+      /* Thumbnail strip */
+      .thumb-img {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        background: #fff;
+        transition:
+          border-color 0.2s,
+          transform 0.2s;
+        padding: 4px;
+      }
+      .thumb-img:hover {
+        transform: translateY(-2px);
+      }
+      .thumb-img.active {
+        border-color: #198754;
+      }
+
+      /* Main image */
+      #mainImage {
+        transition: opacity 0.25s ease;
+        max-height: 420px;
+        object-fit: contain;
+      }
+
+      /* Review stars */
+      .star-filled {
+        color: #f5a623;
+      }
+      .star-empty {
+        color: #dee2e6;
+      }
+
+      /* Quantity stepper */
+      #qtyDisplay {
+        min-width: 40px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <div id="navbar"></div>
+
+    <!-- Toast -->
+    <div
+      class="toast-container position-fixed top-0 end-0 p-3"
+      style="z-index: 9999"
+    >
+      <div
+        id="liveToast"
+        class="toast align-items-center text-bg-success border-0"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div class="d-flex">
+          <div class="toast-body d-flex align-items-center gap-2">
+            <i id="toastIcon" class="bi bi-check-circle-fill fs-5"></i>
+            <span id="toastMessage">Done!</span>
+          </div>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          ></button>
+        </div>
+      </div>
+    </div>
+
+    <main class="container py-5">
+      <!-- Back -->
+      <div class="mb-4">
+        <a
+          href="javascript:history.back()"
+          class="btn btn-outline-secondary btn-sm"
+        >
+          <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+      </div>
+
+      <!-- Skeleton -->
+      <div id="skeleton">
+        <div class="row g-5">
+          <div class="col-lg-6">
+            <div class="placeholder-glow">
+              <div
+                class="placeholder bg-secondary rounded-3 w-100"
+                style="height: 380px"
+              ></div>
+              <div class="d-flex gap-2 mt-3">
+                <div
+                  class="placeholder bg-secondary rounded"
+                  style="width: 72px; height: 72px"
+                ></div>
+                <div
+                  class="placeholder bg-secondary rounded"
+                  style="width: 72px; height: 72px"
+                ></div>
+                <div
+                  class="placeholder bg-secondary rounded"
+                  style="width: 72px; height: 72px"
+                ></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 placeholder-glow">
+            <div class="placeholder col-4 bg-secondary mb-2"></div>
+            <div
+              class="placeholder col-9 bg-secondary mb-3"
+              style="height: 28px"
+            ></div>
+            <div
+              class="placeholder col-3 bg-secondary mb-4"
+              style="height: 24px"
+            ></div>
+            <div class="placeholder col-12 bg-secondary mb-2"></div>
+            <div class="placeholder col-10 bg-secondary mb-2"></div>
+            <div class="placeholder col-8 bg-secondary mb-5"></div>
+            <div
+              class="placeholder col-12 bg-secondary"
+              style="height: 44px; border-radius: 0.375rem"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div id="errorAlert" class="alert alert-danger d-none text-center">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>Failed to load
+        product.
+        <button
+          class="btn btn-sm btn-outline-danger ms-2"
+          onclick="fetchProduct()"
+        >
+          Retry
+        </button>
+      </div>
+
+      <!-- Product content -->
+      <div id="productContent" class="d-none">
+        <div class="row g-5">
+          <div class="col-lg-6">
+            <div
+              class="bg-white rounded-3 shadow-sm d-flex align-items-center justify-content-center p-3 mb-3"
+              style="min-height: 380px"
+            >
+              <img id="mainImage" src="" alt="Product" class="w-100" />
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap" id="thumbnails"></div>
+          </div>
+
+          <div class="col-lg-6">
+            <div
+              class="d-flex gap-2 mb-2 flex-wrap"
+              id="breadcrumbBadges"
+            ></div>
+            <h2 class="fw-bold lh-sm mb-2" id="productTitle"></h2>
+
+            <div
+              class="d-flex align-items-center gap-2 mb-3"
+              id="ratingRow"
+            ></div>
+
+            <div
+              class="d-flex align-items-baseline gap-2 mb-3"
+              id="priceRow"
+            ></div>
+
+            <p
+              class="text-muted mb-4"
+              id="productDesc"
+              style="white-space: pre-line; line-height: 1.7"
+            ></p>
+
+            <div class="row g-2 mb-4" id="metaRow"></div>
+
+            <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+              <div class="input-group" style="width: 130px">
+                <button
+                  class="btn btn-outline-secondary"
+                  onclick="changeQty(-1)"
+                >
+                  <i class="bi bi-dash"></i>
+                </button>
+                <span class="form-control text-center fw-bold" id="qtyDisplay"
+                  >1</span
+                >
+                <button
+                  class="btn btn-outline-secondary"
+                  onclick="changeQty(1)"
+                >
+                  <i class="bi bi-plus"></i>
+                </button>
+              </div>
+              <button
+                id="wishlistBtn"
+                class="btn btn-outline-danger rounded-circle d-flex align-items-center justify-content-center"
+                style="width: 44px; height: 44px"
+                onclick="toggleWishlist()"
+                title="Add to Wishlist"
+              >
+                <i class="bi bi-heart fs-5"></i>
+              </button>
+            </div>
+
+            <!-- Add to Cart -->
+            <button
+              class="btn btn-dark w-100 py-2 fw-semibold"
+              id="cartBtn"
+              onclick="addToCart()"
+            >
+              <i class="bi bi-cart-plus me-2"></i>Add to Cart
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Reviews ── -->
+        <div class="mt-5">
+          <h5 class="fw-bold mb-4 border-bottom pb-2">
+            <i class="bi bi-chat-square-quote me-2 text-success"></i>Customer
+            Reviews
+            <span
+              class="badge bg-success bg-opacity-10 text-success ms-2 fw-normal fs-6"
+              id="reviewCount"
+            ></span>
+          </h5>
+          <div class="row g-3" id="reviewsGrid"></div>
+          <div id="noReviews" class="text-muted text-center py-4 d-none">
+            <i class="bi bi-chat-dots display-5 d-block mb-2"></i>No reviews
+            yet.
+          </div>
+        </div>
+      </div>
+      <!-- /productContent -->
+    </main>
+
+    <div id="footer"></div>
+
+    <script src="/components/navbar.js"></script>
+    <script>
+      const API_BASE = "https://ecommerce.routemisr.com/api/v1";
+      const token = () => localStorage.getItem("token") || "";
+
+      let product = null;
+      let qty = 1;
+      let isWishlisted = false;
+
+      //  Read product ID from URL
+      const productId = new URLSearchParams(window.location.search).get("id");
+
+      //  Toast
+      function showToast(message, type = "success") {
+        const toastEl = document.getElementById("liveToast");
+        const toastMsg = document.getElementById("toastMessage");
+        const toastIcon = document.getElementById("toastIcon");
+        toastEl.className = "toast align-items-center border-0";
+        const map = {
+          success: ["text-bg-success", "bi bi-check-circle-fill fs-5"],
+          danger: ["text-bg-danger", "bi bi-x-circle-fill fs-5"],
+          warning: ["text-bg-warning", "bi bi-exclamation-circle-fill fs-5"],
+        };
+        const [cls, icon] = map[type] || map.success;
+        toastEl.classList.add(cls);
+        toastIcon.className = icon;
+        toastMsg.textContent = message;
+        bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 3000 }).show();
+      }
+
+      //  Quantity stepper
+      function changeQty(delta) {
+        qty = Math.max(1, qty + delta);
+        document.getElementById("qtyDisplay").textContent = qty;
+      }
+
+      //  Switch main image
+      function setMainImage(src, thumbEl) {
+        const main = document.getElementById("mainImage");
+        main.style.opacity = "0";
+        setTimeout(() => {
+          main.src = src;
+          main.style.opacity = "1";
+        }, 220);
+        document
+          .querySelectorAll(".thumb-img")
+          .forEach((t) => t.classList.remove("active"));
+        if (thumbEl) thumbEl.classList.add("active");
+      }
+
+      //  Wishlist
+      async function toggleWishlist() {
+        const btn = document.getElementById("wishlistBtn");
+        btn.disabled = true;
+        try {
+          let res, data;
+          if (isWishlisted) {
+            res = await fetch(`${API_BASE}/wishlist/${productId}`, {
+              method: "DELETE",
+              headers: { token: token() },
+            });
+            data = await res.json();
+            if (res.ok) {
+              isWishlisted = false;
+              btn.innerHTML = '<i class="bi bi-heart fs-5"></i>';
+              btn.classList.replace("btn-danger", "btn-outline-danger");
+              showToast("Removed from wishlist.", "warning");
+              if (typeof updateWishlistBadge === "function")
+                updateWishlistBadge();
+            }
+          } else {
+            res = await fetch(`${API_BASE}/wishlist`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", token: token() },
+              body: JSON.stringify({ productId }),
+            });
+            data = await res.json();
+            if (res.ok) {
+              isWishlisted = true;
+              btn.innerHTML = '<i class="bi bi-heart-fill fs-5"></i>';
+              btn.classList.replace("btn-outline-danger", "btn-danger");
+              showToast("Added to wishlist!", "success");
+              if (typeof updateWishlistBadge === "function")
+                updateWishlistBadge();
+            }
+          }
+          if (!res.ok)
+            showToast(data.message || "Could not update wishlist.", "danger");
+        } catch {
+          showToast("Network error.", "danger");
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      //  Add to Cart
+      async function addToCart() {
+        const btn = document.getElementById("cartBtn");
+        btn.disabled = true;
+        btn.innerHTML =
+          '<span class="spinner-border spinner-border-sm me-2"></span>Adding...';
+        try {
+          const res = await fetch(`${API_BASE}/cart`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", token: token() },
+            body: JSON.stringify({ productId, count: qty }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showToast(`${qty > 1 ? qty + "× " : ""}Added to cart!`, "success");
+            if (typeof updateCartBadge === "function") updateCartBadge();
+          } else {
+            showToast(data.message || "Could not add to cart.", "danger");
+          }
+        } catch {
+          showToast("Network error.", "danger");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-cart-plus me-2"></i>Add to Cart';
+        }
+      }
+
+      //  Check wishlist status
+      async function checkWishlist() {
+        if (!token()) return;
+        try {
+          const res = await fetch(`${API_BASE}/wishlist`, {
+            headers: { token: token() },
+          });
+          const data = await res.json();
+          if (res.ok && Array.isArray(data.data)) {
+            isWishlisted = data.data.some((p) => (p._id || p) === productId);
+            const btn = document.getElementById("wishlistBtn");
+            if (isWishlisted) {
+              btn.innerHTML = '<i class="bi bi-heart-fill fs-5"></i>';
+              btn.classList.replace("btn-outline-danger", "btn-danger");
+            }
+          }
+        } catch {}
+      }
+
+      //  Stars HTML
+      function starsHtml(avg, count) {
+        const filled = Math.round(avg || 0);
+        const stars = Array(5)
+          .fill(0)
+          .map(
+            (_, i) =>
+              `<i class="bi bi-star${i < filled ? "-fill star-filled" : " star-empty"} small"></i>`,
+          )
+          .join("");
+        return `${stars}<span class="text-muted small ms-1">${(avg || 0).toFixed(1)} (${count || 0} reviews)</span>`;
+      }
+
+      //  Render product
+      function renderProduct(p) {
+        document.title = p.title;
+
+        // Main image + thumbnails
+        const allImages = [p.imageCover, ...(p.images || [])].filter(Boolean);
+        const mainImg = document.getElementById("mainImage");
+        mainImg.src = allImages[0];
+        mainImg.alt = p.title;
+
+        const thumbsEl = document.getElementById("thumbnails");
+        allImages.forEach((src, i) => {
+          const img = document.createElement("img");
+          img.src = src;
+          img.className = `thumb-img shadow-sm${i === 0 ? " active" : ""}`;
+          img.alt = `View ${i + 1}`;
+          img.onerror = () => (img.style.display = "none");
+          img.addEventListener("click", () => setMainImage(src, img));
+          thumbsEl.appendChild(img);
+        });
+
+        // Breadcrumb
+        const badges = document.getElementById("breadcrumbBadges");
+        if (p.category?.name) {
+          badges.innerHTML = `
+            <span class="badge bg-primary bg-opacity-10 text-primary">${p.category.name}</span>
+            ${p.subcategory?.[0]?.name ? `<span class="badge bg-secondary bg-opacity-10 text-secondary">${p.subcategory[0].name}</span>` : ""}
+          `;
+        }
+
+        // Title
+        document.getElementById("productTitle").textContent = p.title;
+
+        // Rating
+        document.getElementById("ratingRow").innerHTML = starsHtml(
+          p.ratingsAverage,
+          p.ratingsQuantity,
+        );
+
+        // Price
+        const priceRow = document.getElementById("priceRow");
+        if (p.priceAfterDiscount) {
+          priceRow.innerHTML = `
+            <span class="fw-bold text-success fs-3">${p.priceAfterDiscount} EGP</span>
+            <span class="text-decoration-line-through text-muted">${p.price} EGP</span>
+            <span class="badge bg-danger">
+              -${Math.round((1 - p.priceAfterDiscount / p.price) * 100)}%
+            </span>`;
+        } else {
+          priceRow.innerHTML = `<span class="fw-bold text-success fs-3">${p.price} EGP</span>`;
+        }
+
+        // Description
+        document.getElementById("productDesc").textContent =
+          p.description || "";
+
+        // Meta cards
+        const meta = [
+          p.brand?.name
+            ? { icon: "bi-award", label: "Brand", value: p.brand.name }
+            : null,
+          {
+            icon: "bi-box-seam",
+            label: "In Stock",
+            value: `${p.quantity} units`,
+          },
+          {
+            icon: "bi-bag-check",
+            label: "Sold",
+            value: `${p.sold || 0} items`,
+          },
+        ].filter(Boolean);
+
+        document.getElementById("metaRow").innerHTML = meta
+          .map(
+            (m) => `
+          <div class="col-auto">
+            <div class="d-flex align-items-center gap-2 bg-white rounded-3 shadow-sm px-3 py-2">
+              <i class="bi ${m.icon} text-success fs-5"></i>
+              <div>
+                <div class="text-muted" style="font-size:.7rem;">${m.label}</div>
+                <div class="fw-semibold small">${m.value}</div>
+              </div>
+            </div>
+          </div>`,
+          )
+          .join("");
+
+        // Reviews
+        const reviews = p.reviews || [];
+        const reviewGrid = document.getElementById("reviewsGrid");
+        document.getElementById("reviewCount").textContent =
+          `${reviews.length} review${reviews.length !== 1 ? "s" : ""}`;
+
+        if (!reviews.length) {
+          document.getElementById("noReviews").classList.remove("d-none");
+        } else {
+          reviewGrid.innerHTML = reviews
+            .map((r) => {
+              const initials = (r.user?.name || "U")
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase();
+              const filledR = Math.round(r.rating || 0);
+              const rStars = Array(5)
+                .fill(0)
+                .map(
+                  (_, i) =>
+                    `<i class="bi bi-star${i < filledR ? "-fill star-filled" : " star-empty"} small"></i>`,
+                )
+                .join("");
+              const date = new Date(r.createdAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              });
+              return `
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 p-3">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold"
+                         style="width:38px;height:38px;font-size:.85rem;flex-shrink:0;">
+                      ${initials}
+                    </div>
+                    <div>
+                      <div class="fw-semibold small lh-1">${r.user?.name || "Anonymous"}</div>
+                      <div class="text-muted" style="font-size:.7rem;">${date}</div>
+                    </div>
+                  </div>
+                  <div class="mb-2">${rStars}</div>
+                  <p class="text-muted small mb-0">${r.review}</p>
+                </div>
+              </div>`;
+            })
+            .join("");
+        }
+
+        // Show content
+        document.getElementById("skeleton").classList.add("d-none");
+        document.getElementById("productContent").classList.remove("d-none");
+
+        // Check wishlist after render
+        checkWishlist();
+      }
+
+      // ── Fetch product
+      async function fetchProduct() {
+        if (!productId) {
+          document.getElementById("skeleton").classList.add("d-none");
+          document.getElementById("errorAlert").classList.remove("d-none");
+          return;
+        }
+        try {
+          const res = await fetch(`${API_BASE}/products/${productId}`);
+          const data = await res.json();
+          if (!res.ok || !data.data) throw new Error();
+          product = data.data;
+          renderProduct(product);
+        } catch {
+          document.getElementById("skeleton").classList.add("d-none");
+          document.getElementById("errorAlert").classList.remove("d-none");
+        }
+      }
+
+      // ── Load components
+      function loadComponent(id, file, callback) {
+        fetch(file)
+          .then((r) => r.text())
+          .then((html) => {
+            document.getElementById(id).innerHTML = html;
+            if (typeof callback === "function") callback();
+          })
+          .catch(() => {});
+      }
+
+      loadComponent("navbar", "/components/navbar.html", initNavbar);
+      loadComponent("footer", "/components/footer.html");
+      fetchProduct();
+    </script>
+  </body>
+</html>

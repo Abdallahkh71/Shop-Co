@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Cart</title>
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
+    <style>
+      .navbar-brand img {
+        max-width: 150px;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <div id="navbar"></div>
+
+    <div
+      class="toast-container position-fixed top-0 end-0 p-3"
+      style="z-index: 9999"
+    >
+      <div
+        id="liveToast"
+        class="toast align-items-center text-bg-success border-0"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div class="d-flex">
+          <div class="toast-body d-flex align-items-center gap-2">
+            <i id="toastIcon" class="bi bi-check-circle-fill fs-5"></i>
+            <span id="toastMessage">Done!</span>
+          </div>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          ></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clear Cart Confirm Modal -->
+    <div
+      class="modal fade"
+      id="clearModal"
+      tabindex="-1"
+      aria-labelledby="clearModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold" id="clearModalLabel">
+              <i class="bi bi-trash3-fill text-danger me-2"></i>Clear Cart
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body text-muted">
+            Are you sure you want to remove all items from your cart? This
+            action cannot be undone.
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button class="btn btn-danger btn-sm" id="confirmClearBtn">
+              <i class="bi bi-trash3 me-1"></i>Yes, Clear Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <main class="container py-5">
+      <!-- Page Header -->
+      <div
+        class="d-flex align-items-center justify-content-between flex-wrap gap-2"
+      >
+        <div class="d-flex align-items-center gap-3">
+          <a href="home.html" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back
+          </a>
+          <div>
+            <h4 class="fw-bold mb-0">
+              <i class="bi bi-cart3 me-2 text-success"></i>My Cart
+            </h4>
+            <p class="text-muted small mb-0" id="itemCountLabel">Loading...</p>
+          </div>
+        </div>
+        <button
+          class="btn btn-outline-danger btn-sm d-none"
+          id="clearCartBtn"
+          data-bs-toggle="modal"
+          data-bs-target="#clearModal"
+        >
+          <i class="bi bi-trash3 me-1"></i>Clear Cart
+        </button>
+      </div>
+
+      <!-- Skeleton Loader -->
+      <div id="skeletonLoader" class="row g-4">
+        <div class="col-lg-8">
+          <script>
+            document.write(
+              Array(3)
+                .fill(0)
+                .map(
+                  () => `
+                <div class="card border-0 shadow-sm mb-3 placeholder-glow">
+                  <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="placeholder bg-secondary rounded" style="width:90px;height:90px;flex-shrink:0;"></div>
+                    <div class="flex-grow-1">
+                      <h6 class="placeholder col-7 bg-secondary"></h6>
+                      <p class="placeholder col-4 bg-secondary"></p>
+                      <p class="placeholder col-3 bg-secondary"></p>
+                    </div>
+                    <div class="placeholder bg-secondary rounded" style="width:100px;height:36px;"></div>
+                  </div>
+                </div>
+              `,
+                )
+                .join(""),
+            );
+          </script>
+        </div>
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm placeholder-glow p-3">
+            <h6 class="placeholder col-6 bg-secondary mb-3"></h6>
+            <p class="placeholder col-8 bg-secondary"></p>
+            <p class="placeholder col-6 bg-secondary"></p>
+            <div
+              class="placeholder col-12 bg-secondary rounded"
+              style="height: 42px"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyCart" class="text-center py-5 d-none">
+        <i class="bi bi-cart-x display-2 text-muted"></i>
+        <h5 class="mt-3 fw-semibold text-muted">Your cart is empty</h5>
+        <p class="text-muted small">
+          Looks like you haven't added anything yet.
+        </p>
+        <a href="products.html" class="btn btn-success mt-2">
+          <i class="bi bi-bag-plus me-2"></i>Start Shopping
+        </a>
+      </div>
+
+      <!-- Error -->
+      <div
+        id="errorAlert"
+        class="alert alert-danger d-none text-center"
+        role="alert"
+      >
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>Failed to load your
+        cart.
+        <button
+          class="btn btn-sm btn-outline-danger ms-2"
+          onclick="fetchCart()"
+        >
+          Retry
+        </button>
+      </div>
+
+      <!-- Cart Content -->
+      <div id="cartContent" class="row g-4 d-none">
+        <!-- Items list -->
+        <div class="col-lg-8">
+          <div id="cartItems"></div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm sticky-top" style="top: 80px">
+            <div class="card-header bg-white fw-semibold border-bottom">
+              <i class="bi bi-receipt me-2 text-success"></i>Order Summary
+            </div>
+            <div class="card-body">
+              <div class="d-flex justify-content-between mb-2 small text-muted">
+                <span>Items</span>
+                <span id="summaryCount">—</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2 small text-muted">
+                <span>Subtotal</span>
+                <span id="summarySubtotal">—</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2 small text-muted">
+                <span>Shipping</span>
+                <span class="text-success fw-semibold">Free</span>
+              </div>
+              <hr />
+              <div class="d-flex justify-content-between fw-bold fs-5">
+                <span>Total</span>
+                <span id="summaryTotal" class="text-success">—</span>
+              </div>
+            </div>
+            <div class="card-footer bg-white border-0 pt-0">
+              <button class="btn btn-success w-100 fw-semibold">
+                <i class="bi bi-lock-fill me-2"></i>Proceed to Checkout
+              </button>
+              <a
+                href="products.html"
+                class="btn btn-outline-secondary w-100 mt-2 btn-sm"
+              >
+                <i class="bi bi-arrow-left me-1"></i>Continue Shopping
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+    <script src="/components/navbar.js"></script>
+    <script>
+      const API_BASE = "https://ecommerce.routemisr.com/api/v1";
+      const token = () => localStorage.getItem("token") || "";
+      let cartData = null; // holds the full cart response
+
+      //  Toast
+      function showToast(message, type = "success") {
+        const toastEl = document.getElementById("liveToast");
+        const toastMsg = document.getElementById("toastMessage");
+        const toastIcon = document.getElementById("toastIcon");
+        toastEl.className = "toast align-items-center border-0";
+        const map = {
+          success: ["text-bg-success", "bi bi-check-circle-fill fs-5"],
+          danger: ["text-bg-danger", "bi bi-x-circle-fill fs-5"],
+          warning: ["text-bg-warning", "bi bi-exclamation-circle-fill fs-5"],
+          info: ["text-bg-info", "bi bi-info-circle-fill fs-5"],
+        };
+        const [cls, icon] = map[type] || map.info;
+        toastEl.classList.add(cls);
+        toastIcon.className = icon;
+        toastMsg.textContent = message;
+        bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 3000 }).show();
+      }
+
+      //  Render Cart
+      function renderCart(data) {
+        cartData = data;
+        const items = data.data?.products || [];
+        const totalPrice = data.data?.totalCartPrice || 0;
+        const numItems = items.length;
+
+        document.getElementById("skeletonLoader").classList.add("d-none");
+        document.getElementById("errorAlert").classList.add("d-none");
+
+        if (!numItems) {
+          document.getElementById("emptyCart").classList.remove("d-none");
+          document.getElementById("cartContent").classList.add("d-none");
+          document.getElementById("clearCartBtn").classList.add("d-none");
+          document.getElementById("itemCountLabel").textContent =
+            "Your cart is empty";
+          return;
+        }
+
+        document.getElementById("emptyCart").classList.add("d-none");
+        document.getElementById("cartContent").classList.remove("d-none");
+        document.getElementById("clearCartBtn").classList.remove("d-none");
+        document.getElementById("itemCountLabel").textContent =
+          `${numItems} item${numItems !== 1 ? "s" : ""} in your cart`;
+
+        // Summary
+        document.getElementById("summaryCount").textContent = numItems;
+        document.getElementById("summarySubtotal").textContent =
+          `${totalPrice.toLocaleString()} EGP`;
+        document.getElementById("summaryTotal").textContent =
+          `${totalPrice.toLocaleString()} EGP`;
+
+        // Items
+        const container = document.getElementById("cartItems");
+        container.innerHTML = "";
+
+        items.forEach((item) => {
+          const product = item.product;
+          const itemTotal = (item.price * item.count).toLocaleString();
+
+          const card = document.createElement("div");
+          card.className = "card border-0 shadow-sm mb-3";
+          card.id = `cart-item-${product._id}`;
+          card.innerHTML = `
+            <div class="card-body d-flex gap-3 align-items-start align-items-sm-center flex-column flex-sm-row">
+
+              <!-- Image -->
+              <img
+                src="${product.imageCover}"
+                alt="${product.title}"
+                class="rounded object-fit-contain bg-white border"
+                style="width:90px;height:90px;flex-shrink:0;"
+                onerror="this.src='https://placehold.co/90x90?text=?'"
+              />
+
+              <!-- Info -->
+              <div class="flex-grow-1 min-width-0">
+                <h6 class="fw-semibold mb-1 lh-sm" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
+                  ${product.title}
+                </h6>
+                <p class="text-muted small mb-2">${product.category?.name || ""}</p>
+                <p class="fw-bold text-success mb-0">${item.price} EGP <span class="text-muted fw-normal small">each</span></p>
+              </div>
+
+              <!-- Quantity + actions -->
+              <div class="d-flex flex-column align-items-end gap-2">
+
+                <!-- Quantity stepper -->
+                <div class="input-group input-group-sm" style="width:120px;">
+                  <button
+                    class="btn btn-outline-secondary"
+                    onclick="updateQuantity('${product._id}', ${item.count - 1})"
+                    ${item.count <= 1 ? "disabled" : ""}
+                  >
+                    <i class="bi bi-dash"></i>
+                  </button>
+                  <span
+                    class="form-control text-center fw-semibold"
+                    id="qty-${product._id}"
+                  >${item.count}</span>
+                  <button
+                    class="btn btn-outline-secondary"
+                    onclick="updateQuantity('${product._id}', ${item.count + 1})"
+                  >
+                    <i class="bi bi-plus"></i>
+                  </button>
+                </div>
+
+                <!-- Item total -->
+                <span class="badge bg-success bg-opacity-10 text-success fw-semibold px-3 py-2">
+                  ${itemTotal} EGP
+                </span>
+
+                <!-- Remove button -->
+                <button
+                  class="btn btn-outline-danger btn-sm"
+                  onclick="removeItem('${product._id}', this)"
+                >
+                  <i class="bi bi-trash3 me-1"></i>Remove
+                </button>
+              </div>
+
+            </div>`;
+          container.appendChild(card);
+        });
+      }
+
+      //  GET cart
+      async function fetchCart() {
+        document.getElementById("skeletonLoader").classList.remove("d-none");
+        document.getElementById("cartContent").classList.add("d-none");
+        document.getElementById("emptyCart").classList.add("d-none");
+        document.getElementById("errorAlert").classList.add("d-none");
+
+        try {
+          const res = await fetch(`${API_BASE}/cart`, {
+            headers: { token: token() },
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message);
+          renderCart(data);
+        } catch (err) {
+          document.getElementById("skeletonLoader").classList.add("d-none");
+          document.getElementById("errorAlert").classList.remove("d-none");
+          console.error(err);
+        }
+      }
+
+      //  PUT update quantity
+      async function updateQuantity(itemId, newCount) {
+        if (newCount < 1) return;
+
+        // Optimistic UI — disable stepper buttons
+        const qtyEl = document.getElementById(`qty-${itemId}`);
+        if (qtyEl) qtyEl.classList.add("text-muted");
+
+        try {
+          const res = await fetch(`${API_BASE}/cart/${itemId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json", token: token() },
+            body: JSON.stringify({ count: newCount }),
+          });
+          const data = await res.json();
+
+          if (res.ok) {
+            showToast("Quantity updated.", "info");
+            renderCart(data);
+          } else {
+            showToast(data.message || "Could not update quantity.", "danger");
+            if (qtyEl) qtyEl.classList.remove("text-muted");
+          }
+        } catch {
+          showToast("Network error. Please try again.", "danger");
+          if (qtyEl) qtyEl.classList.remove("text-muted");
+        }
+      }
+
+      //  DELETE specific item
+      async function removeItem(itemId, btn) {
+        btn.disabled = true;
+        btn.innerHTML =
+          '<span class="spinner-border spinner-border-sm"></span>';
+
+        try {
+          const res = await fetch(`${API_BASE}/cart/${itemId}`, {
+            method: "DELETE",
+            headers: { token: token() },
+          });
+          const data = await res.json();
+
+          if (res.ok) {
+            showToast("Item removed from cart.", "warning");
+            if (typeof updateCartBadge === "function") updateCartBadge();
+
+            // Animate card out then re-render
+            const card = document.getElementById(`cart-item-${itemId}`);
+            if (card) {
+              card.style.transition = "opacity .3s, transform .3s";
+              card.style.opacity = "0";
+              card.style.transform = "translateX(40px)";
+              setTimeout(() => renderCart(data), 320);
+            } else {
+              renderCart(data);
+            }
+          } else {
+            showToast(data.message || "Could not remove item.", "danger");
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-trash3 me-1"></i>Remove';
+          }
+        } catch {
+          showToast("Network error. Please try again.", "danger");
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-trash3 me-1"></i>Remove';
+        }
+      }
+
+      //  DELETE clear entire cart
+      document
+        .getElementById("confirmClearBtn")
+        .addEventListener("click", async () => {
+          const btn = document.getElementById("confirmClearBtn");
+          btn.disabled = true;
+          btn.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-1"></span>Clearing...';
+
+          try {
+            const res = await fetch(`${API_BASE}/cart`, {
+              method: "DELETE",
+              headers: { token: token() },
+            });
+
+            bootstrap.Modal.getInstance(
+              document.getElementById("clearModal"),
+            ).hide();
+
+            if (res.ok) {
+              showToast("Cart cleared.", "warning");
+              // Show empty state
+              document.getElementById("cartContent").classList.add("d-none");
+              document.getElementById("clearCartBtn").classList.add("d-none");
+              document.getElementById("emptyCart").classList.remove("d-none");
+              document.getElementById("itemCountLabel").textContent =
+                "Your cart is empty";
+            } else {
+              const data = await res.json();
+              showToast(data.message || "Could not clear cart.", "danger");
+            }
+          } catch {
+            showToast("Network error. Please try again.", "danger");
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-trash3 me-1"></i>Yes, Clear Cart';
+          }
+        });
+
+      //  Load components
+      function loadComponent(id, file, callback) {
+        // ← add callback param
+        fetch(file)
+          .then((response) => response.text())
+          .then((data) => {
+            document.getElementById(id).innerHTML = data;
+            if (typeof callback === "function") callback(); // ← call it after inject
+          });
+      }
+
+      loadComponent("navbar", "/components/navbar.html", initNavbar); // ← pass initNavbar
+      loadComponent("footer", "/components/footer.html");
+
+      //  Init
+      fetchCart();
+    </script>
+  </body>
+</html>

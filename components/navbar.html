@@ -1,0 +1,189 @@
+<style>
+  /* ── Nav link active & hover  */
+  #navLinks .nav-link {
+    position: relative;
+    font-weight: 500;
+    color: #333 !important;
+    padding-bottom: 4px;
+    transition: color 0.2s;
+  }
+  #navLinks .nav-link::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background-color: #198754;
+    border-radius: 2px;
+    transition: width 0.25s ease;
+  }
+  #navLinks .nav-link:hover {
+    color: #198754 !important;
+  }
+  #navLinks .nav-link:hover::after {
+    width: 90%;
+  }
+  #navLinks .nav-link.active {
+    color: #198754 !important;
+    font-weight: 700;
+  }
+  #navLinks .nav-link.active::after {
+    width: 100%;
+  }
+
+  /*  Icon hover  */
+  .nav-icon-link {
+    transition:
+      transform 0.2s,
+      color 0.2s;
+    display: inline-flex;
+  }
+  .nav-icon-link:hover {
+    transform: translateY(-2px);
+    color: #198754 !important;
+  }
+  .nav-icon-link.text-danger:hover {
+    color: #b02a37 !important;
+    transform: translateY(-2px);
+  }
+</style>
+
+<nav class="navbar navbar-expand-lg bg-white fixed-top shadow-sm">
+  <div class="container">
+    <a class="navbar-brand" href="/index.html">
+      <img src="/images/logo.png" alt="Logo" class="w-75" />
+    </a>
+    <button
+      class="navbar-toggler shadow-none border-0"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <!-- Nav links -->
+      <div class="navbar-nav ms-lg-auto align-middle" id="navLinks">
+        <a class="nav-link" href="/index.html">Home</a>
+        <a class="nav-link" href="/products.html">Products</a>
+        <a class="nav-link" href="/productsByCategory.html">Categories</a>
+      </div>
+
+      <!-- Right icons -->
+      <div class="ms-lg-3 mt-2 mt-lg-0">
+        <div class="d-flex align-items-center gap-3">
+          <!-- Cart -->
+          <div class="position-relative">
+            <a
+              href="/cart.html"
+              id="cartLink"
+              class="nav-icon-link text-decoration-none text-dark"
+            >
+              <i class="bi bi-cart fs-4"></i>
+            </a>
+            <span
+              id="cartBadge"
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
+              style="font-size: 0.6rem"
+            ></span>
+          </div>
+
+          <!-- Wishlist -->
+          <div class="position-relative">
+            <a
+              href="/wishlist.html"
+              id="wishlistLink"
+              class="nav-icon-link text-decoration-none text-dark"
+            >
+              <i class="bi bi-bag-heart fs-4"></i>
+            </a>
+            <span
+              id="wishlistBadge"
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
+              style="font-size: 0.6rem"
+            ></span>
+          </div>
+
+          <!-- User icon (logged in only) -->
+          <div id="userIconWrap" class="d-none">
+            <a
+              href="#"
+              id="userIcon"
+              class="nav-icon-link text-decoration-none text-dark"
+              data-bs-toggle="tooltip"
+              data-bs-placement="bottom"
+              data-bs-html="true"
+              title=""
+            >
+              <i class="bi bi-person-circle fs-4"></i>
+            </a>
+          </div>
+
+          <!-- Login (logged out only) -->
+          <div id="loginIconWrap">
+            <a
+              href="/login.html"
+              class="nav-icon-link text-decoration-none text-dark"
+              title="Login"
+            >
+              <i class="bi bi-box-arrow-in-right fs-4"></i>
+            </a>
+          </div>
+
+          <!-- Logout (logged in only) -->
+          <div id="logoutIconWrap" class="d-none">
+            <a
+              href="#"
+              id="logoutBtn"
+              class="nav-icon-link text-decoration-none text-danger"
+              title="Logout"
+            >
+              <i class="bi bi-box-arrow-right fs-4"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Spacer -->
+<div style="height: 64px"></div>
+
+<!-- Auth Toast -->
+<div
+  class="toast-container position-fixed top-0 end-0 p-3"
+  style="z-index: 99999"
+>
+  <div
+    id="navToast"
+    class="toast align-items-center text-bg-warning border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center gap-2">
+        <i class="bi bi-lock-fill fs-5"></i>
+        <div>
+          <div class="fw-semibold small" id="navToastTitle">Login Required</div>
+          <div class="small" id="navToastMsg">
+            Please login to access this page.
+          </div>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="btn-close btn-close-white me-2 m-auto"
+        data-bs-dismiss="toast"
+        aria-label="Close"
+      ></button>
+    </div>
+  </div>
+</div>
